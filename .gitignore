@@ -1,6 +1,10 @@
 build/
 dist/
 *.egg-info/
+.eggs/
+.cache/
+
+.coverage
 
 __pycache__
 *.pyc
