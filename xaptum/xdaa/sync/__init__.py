@@ -12,25 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
-import socket
-
-def recvexactly(sock, size, flags=0):
-    """Receive exactly size bytes from the socket.
-
-    The return value is a bytes object representing the data received. See the
-    Unix manual page recv(2) for the meaning of the optional argument *flags*;
-    it defaults to zero.
-
-    """
-
-    buffer = bytearray(size)
-    view = memoryview(buffer)
-    pos = 0
-    while pos < size:
-        read = sock.recv_into(view[pos:], size - pos, flags)
-        if read == 0:
-            return bytes(b'')
-        pos += read
-    return bytes(buffer)
+from xaptum.xdaa.sync.crypto import SyncCrypto
+from xaptum.xdaa.sync.io import SyncSocket

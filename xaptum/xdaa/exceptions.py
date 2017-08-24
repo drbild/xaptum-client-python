@@ -14,8 +14,27 @@
 
 from __future__ import absolute_import, print_function
 
-class InvalidMessageError(ValueError):
+class XDAAError(Exception):
+    """
+    Base class for errors during XDAA secret negotiation.
+    """
+
+class InvalidMessageError(XDAAError):
     """
     Parsing a message failed because the data was not laid out properly.
     """
-    pass
+
+class IncorrectGroupError(XDAAError):
+    """
+    The DAA group claimed by the peer is not a supported group.
+    """
+
+class InvalidSignatureError(XDAAError):
+    """
+    The signature on an XDAA packet was invalid.
+    """
+
+class UnsupportedVersionError(InvalidMessageError):
+    """
+    The peer is using an unsupported version of the XDAA protocol.
+    """

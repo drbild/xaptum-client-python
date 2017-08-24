@@ -14,10 +14,10 @@
 
 from __future__ import absolute_import, print_function
 
+from xaptum.xdaa.handshake import XDAAHandshake
 from xaptum.xdaa.xdaa import negotiate_secret
 
-from xaptum.xdaa.xdaa import XDAAError
-from xaptum.xdaa.xdaa import XDAAIncorrectGroupError
-from xaptum.xdaa.xdaa import XDAAInvalidSignatureError
-from xaptum.xdaa.xdaa import XDAASocketClosedError
-from xaptum.xdaa.xdaa import XDAAUnsupportedVersionError
+from xaptum.xdaa.exceptions import (
+    XDAAError, IncorrectGroupError, InvalidSignatureError,
+    UnsupportedVersionError
+)

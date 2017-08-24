@@ -17,7 +17,7 @@ from __future__ import absolute_import, print_function
 import struct
 
 from xaptum.xdaa.exceptions import (
-    InvalidMessageError
+    InvalidMessageError, UnsupportedVersionError
 )
 
 class Message(object):
@@ -63,7 +63,7 @@ class ClientHelloMessage(Message):
         client_nonce_len    = fields[2]
 
         if version != 0:
-            raise InvalidMessageError("Invalid ClientHello message version: %d"%version)
+            raise UnsupportedVersionError("Invalid ClientHello message version: %d"%version)
         
         message                     = ClientHelloMessage()
         message.client_group_id_len = client_group_id_len       
@@ -165,7 +165,7 @@ class ServerKeyExchangeMessage(Message):
         signature_len               = fields[4]
         
         if version != 0:
-            raise InvalidMessageError("Invalid ServerKeyExchange message version: %d"%version)
+            raise UnsupportedVersionError("Invalid ServerKeyExchange message version: %d"%version)
 
         message                             = ServerKeyExchangeMessage()
         message.server_group_id_len         = server_group_id_len
@@ -243,7 +243,7 @@ class ClientKeyExchangeMessage(Message):
         Serializes the provided parameters into the correct format for creating
         or verifying the signature field.
         """
-        format = '!%ds%ds'%(len(client_ecdhe_public_key),
+        sig_format = '!%ds%ds'%(len(client_ecdhe_public_key),
                                 len(server_nonce))
         return struct.pack(sig_format,
                            client_ecdhe_public_key,
@@ -272,7 +272,7 @@ class ClientKeyExchangeMessage(Message):
         signature_len        = fields[2]
 
         if version != 0:
-            raise InvalidMessageError("Invalid ClientKeyExchange message version: %d"%version)
+            raise UnsupportedVersionError("Invalid ClientKeyExchange message version: %d"%version)
 
         message                             = ClientKeyExchangeMessage()
         message.client_ecdhe_public_key_len = client_ecdhe_public_key_len
