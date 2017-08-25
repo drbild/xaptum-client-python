@@ -45,6 +45,7 @@ setup(
                 'xaptum.xdaa'],
     setup_requires = ['pytest-runner'],
     install_requires = ['cryptography>=1.9',
+                        'enum34>=1.1.6',
                         'donna25519>=0.1.1',
                         'sslpsk>=1.0'],
     tests_require = ['pytest',
