@@ -21,13 +21,6 @@ from xaptum.xdaa.events import *
 from xaptum.xdaa.exceptions import *
 from xaptum.xdaa.message import *
 
-class DAAGroup(object):
-
-    def __init__(self, group_id, server_public_key, client_private_key):
-        self.group_id           = group_id
-        self.server_public_key  = server_public_key
-        self.client_private_key = client_private_key
-
 class XDAAContext(object):
     """The context developed by the XDAA handshake while negotiating the
     shared secret.
@@ -38,7 +31,7 @@ class XDAAContext(object):
         super(XDAAContext, self).__init__()
 
         self.protocol_version             = 0
-        self.daa_group                    = None
+        self.daa_keys                     = None
         self.client_nonce                 = None
         self.client_daa_private_key       = None
         self.client_ephemeral_private_key = None
@@ -61,10 +54,10 @@ class XDAAHandshake(fsm.FSM):
 
     """
 
-    def __init__(self, daa_group):
+    def __init__(self, daa_keys):
         super(XDAAHandshake, self).__init__(self.init_context)
         self.context = XDAAContext()
-        self.context.daa_group = daa_group
+        self.context.daa_keys = daa_keys
 
     def mixin(self, cls, *args, **kwargs):
         return cls.mixin_to(self, *args, **kwargs)
@@ -124,10 +117,10 @@ class InitContext(fsm.FSM, fsm.StepMixin):
 
     def steps(self, event):
         if self.init_step(event.kind == fsm.ENTRY):
-            return GroupDecodePublicKey(self.context.daa_group.server_public_key)
+            return GroupDecodePublicKey(self.context.daa_keys.server_public_key)
         elif self.step(1, event.kind == Events.GROUP_DECODE_PUBLIC_KEY_RESULT):
             self.context.server_group_public_key = event.public_key
-            return GroupDecodePrivateKey(self.context.daa_group.client_private_key)
+            return GroupDecodePrivateKey(self.context.daa_keys.client_private_key)
         elif self.step(2, event.kind == Events.GROUP_DECODE_PRIVATE_KEY_RESULT):
             self.context.client_group_private_key = event.private_key
             return CreateNonce(size=32)
@@ -148,7 +141,7 @@ class SendClientHello(fsm.FSM, fsm.StepMixin):
 
     def send(self, event):
         if event.kind == fsm.ENTRY:
-            client_hello = ClientHelloMessage(self.context.daa_group.group_id,
+            client_hello = ClientHelloMessage(self.context.daa_keys.group_id,
                                               self.context.client_nonce)
             return DataWrite(client_hello.serialize())
         elif event.kind == Events.DATA_WRITE_RESULT:
@@ -179,7 +172,7 @@ class ReceiveServerKeyExchange(fsm.FSM, fsm.StepMixin):
         if self.init_step(event.kind == fsm.ENTRY):
             if self.message.version != self.context.protocol_version:
                 raise UnsupportedVersionError()
-            if self.message.server_group_id != self.context.daa_group.group_id:
+            if self.message.server_group_id != self.context.daa_keys.group_id:
                 raise IncorrectGroupError()
             return GroupSHA256VerifySignature(self.context.server_group_public_key,
                                               self.message.serialize_for_signature(

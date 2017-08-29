@@ -14,10 +14,10 @@
 
 from __future__ import absolute_import, print_function
 
-from xaptum.xdaa.handshake import DAAGroup, XDAAHandshake
+from xaptum.xdaa.handshake import XDAAHandshake
 from xaptum.xdaa.sync import SyncCrypto, SyncSocket
 
-def negotiate_secret(sock, group):
+def negotiate_secret(sock, daa_keys):
     """Performs the XDAA handshake on the given blocking socket and
     returns the negotiated shared secret.
 
@@ -26,10 +26,8 @@ def negotiate_secret(sock, group):
 
     """
 
-    daa_group = DAAGroup(*group.split(','))
-
-    handshake = XDAAHandshake(daa_group).mixin(SyncCrypto)       \
-                                        .mixin(SyncSocket, sock)
+    handshake = XDAAHandshake(daa_keys).mixin(SyncCrypto)       \
+                                       .mixin(SyncSocket, sock)
 
     handshake.start()
     return handshake.shared_secret

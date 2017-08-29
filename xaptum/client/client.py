@@ -29,7 +29,7 @@ def secure_socket(sock, shared_secret, ciphers=default_ciphers, ssl_version=defa
                               ciphers=ciphers,
                               ssl_version=ssl_version)
 
-def connect(host, port, daa_group, ciphers=default_ciphers, ssl_version=default_ssl_version):
+def connect(host, port, daa_keys, ciphers=default_ciphers, ssl_version=default_ssl_version):
     """Establishes a connection to the Xaptum ENF.
 
     Raises *socket.error* on underlying socket errors, *ssl.SSLError* on
@@ -39,7 +39,7 @@ def connect(host, port, daa_group, ciphers=default_ciphers, ssl_version=default_
     """
 
     tcpsock = socket.create_connection((host, port))
-    secret  = xdaa.negotiate_secret(tcpsock, daa_group)
+    secret  = xdaa.negotiate_secret(tcpsock, daa_keys)
     tlssock = secure_socket(tcpsock, secret, ciphers=ciphers, ssl_version=default_ssl_version)
     #TODO perform DDS authentication
     
